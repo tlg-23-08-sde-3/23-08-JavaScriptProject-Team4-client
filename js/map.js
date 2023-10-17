@@ -69,10 +69,10 @@ export class Map {
         if (this.isInBound({ lat, lng })) {
             const coords = [lat, lng];
             // check if coords = the selected airplane to not overwrite selected airplane
-            if (!this.#selectedAirplane || coords[0] !== this.#selectedAirplane._latlng.lat && coords[0] !== this.#selectedAirplane._latlng.lng){
                 const marker = L.marker(coords, {
-                    icon: this.#defaultAirplaneIcon,
+                    icon: this.#selectedAirplane?.hex === hex ? this.#selectedAirplaneIcon : this.#defaultAirplaneIcon,
                     rotationAngle: dir,
+                    hex: hex,
                 });
                 marker.bindTooltip(flight_icao);
                 this.#markers.push(marker);
@@ -82,13 +82,13 @@ export class Map {
                     if (this.#selectedAirplane) {
                         this.#selectedAirplane.setIcon(this.#defaultAirplaneIcon);
                     }
-                    e.target.setIcon(this.#selectedAirplaneIcon);
                     this.#selectedAirplane = e.target;
+                    this.#selectedAirplane.setIcon(this.#selectedAirplaneIcon);
+                    this.#selectedAirplane.hex = hex;
                     return this.#markerOnClick({ hex })
             }); //TODO DELETE THIS, ADD SOME LOGIC HERE
                 return true;
             }
-        }
         
         return false;
     }
@@ -99,14 +99,9 @@ export class Map {
     restartMarkers() {
         this.#markers.forEach((marker) => {
             // remove all non-selected planes
-            if (!this.#selectedAirplane || marker._latlng.lat !== this.#selectedAirplane._latlng.lat && marker._latlng.lng !== this.#selectedAirplane._latlng.lng){
-                this.#map.removeLayer(marker);
-            }
+            this.#map.removeLayer(marker);
         });
         this.#markers = [];
-        if (this.#selectedAirplane) {
-            this.#markers.push(this.#selectedAirplane);
-        }
     }
 
     async updateMarkers(flightsArray) {
@@ -115,13 +110,17 @@ export class Map {
         }
         this.restartMarkers();
         let count = 0;
-        this.#flightInfoList.every((flightInfo) => {
-            count += this.addMarker(flightInfo) ? 1 : 0;
-            if (count >= MAX_AIRPLANES) {
-                return false;
-            }
-            return true;
-        });
+        try {
+            this.#flightInfoList.every((flightInfo) => {
+                count += this.addMarker(flightInfo) ? 1 : 0;
+                if (count >= MAX_AIRPLANES) {
+                    return false;
+                }
+                return true;
+            });
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     // It gets a flight {hex, lat, lng, dir} and with that queries the API for the full flight information

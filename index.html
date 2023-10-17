@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flight Track</title>
 
+    <!-- FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Young+Serif&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- PLUGINS -->
+
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -17,19 +27,50 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <!-- Link to Bootstrap CSS -->
+
+    <!-- OWNED CSS -->
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
     <div id="map"></div>
 
     <div class="overlay">
-      <p id="p_flight_icao"></p>
-      <p id="p_flag"></p>
-      <p id="p_squawk"></p>
-      <p></p>
-      <img id="img_airline" src="" alt="" />
-      <img id="img_airplane" src="" alt="" />
+      <div id="overlay-container">
+        <div class="heading">
+          <h3>Flight Track</h3>
+        </div>
+        <div class="images">
+          <div>
+            <img id="img_airline" src="" alt="" />
+            <h4 id="airline_name">Airline Name</h4>
+          </div>
+          <img id="img_airplane" src="" alt="" />
+        </div>
+        <div class="location">
+          <p id="from_location">From</p>
+          <p>--></p>
+          <p id="to_location">To</p>
+        </div>
+        <div class="airplane_time">
+          <p><br /></p>
+          <p>Estimated:</p>
+          <p>Actual:</p>
+
+          <p>Departure</p>
+          <p id="depart_time_est">00:00</p>
+          <p id="depart_time_act">00:00</p>
+
+          <p>Arrival</p>
+          <p id="arrive_time_est">00:00</p>
+          <p id="arrive_time_act">00:00</p>
+        </div>
+        <div class="information">
+          <p id="p_flight_icao"></p>
+          <p id="p_flag"></p>
+          <p id="p_squawk"></p>
+        </div>
+        <p></p>
+      </div>
     </div>
     <!-- Link to the JS file -->
     <script
