@@ -39,6 +39,8 @@ export class Map {
     });
     // store selected airplane to handle if one should spawn over it
     #selectedAirplane
+    // store polylines
+    #polylines
     //This will store a callback function that will get triggered each time we click a marker (airplane), we pass the HEX to that function
     #markerOnClick;
 
@@ -138,6 +140,7 @@ export class Map {
             overlay.classList.add("animated");
             this.#selectedAirplane.setIcon(this.#defaultAirplaneIcon);
             this.#selectedAirplane = undefined;
+            this.removeLines();
             return true;
         }
         //Callback triggered, a plane got clicked and we execute the call back passing the HEX value inside an object
@@ -147,6 +150,7 @@ export class Map {
         this.#selectedAirplane = elem;
         this.#selectedAirplane.setIcon(this.#selectedAirplaneIcon);
         this.#selectedAirplane.hex = hex;
+
         return false;
     }
 
@@ -158,8 +162,28 @@ export class Map {
        
     }
 
+    drawLines(positions) {
+        this.removeLines();
+        if (!positions) {
+            return;
+        }
+        
+        let posArr = [];
+        for (let pos of positions) {
+            posArr.push([pos.lat, pos.lng])
+        }
+        this.#polylines = L.polyline(posArr, {color: "blue"}).addTo(this.#map);
+    }
+
     get hasSelectedPlane() {
         return this.#selectedAirplane !== undefined;
+    }
+
+    removeLines() {
+        if (this.#polylines) {
+            this.#map.removeLayer(this.#polylines);
+            this.#polylines = undefined;
+        }
     }
 
     // It gets a flight {hex, lat, lng, dir} and with that queries the API for the full flight information

@@ -49,6 +49,9 @@ function showFlightInfo(flightInfo) {
     overlay.style.animationName = "moveOverlayIn";
     overlay.classList.add("animated");
 
+    // add lines for travel
+    map.drawLines(flightInfo.positionHistory);
+
 
     // get flight info from API
     let flightIdentifier = checkDefinied(flightInfo.flight_icao);
