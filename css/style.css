@@ -29,7 +29,8 @@
 } */
 
 
-.overlay {
+#overlay {
+    display: none;
     height: 90%;
     width: 350px;
     top: 5%;
@@ -42,6 +43,8 @@
     border-radius: 10px;
     font-family: 'Young Serif', serif;
     pointer-events: auto;
+    animation: moveOverlay 0.25s linear 0s;
+    animation-fill-mode: forwards;
   } 
 
 #overlay-container {
@@ -111,4 +114,22 @@
 
 #img_airplane{
     max-width: 350px;
+}
+
+@keyframes moveOverlayIn {
+    0% {
+        transform: translateX(370px);
+    }
+    100% {
+        transform: translateX(0px);
+    }
+}
+
+@keyframes moveOverlayOut {
+    0% {
+        transform: translateX(0px);
+    }
+    100% {
+        transform: translateX(370px);
+    }
 }

@@ -19,11 +19,22 @@ async function onMarkerClicked(params) {
 }
 
 function showFlightInfo(flightInfo) {
-    // 
+    // checks before showFlightInfo
     if (!flightInfo) {
         console.log("Flight Info Undefined");
         return;
     }
+
+    // display .overlay if hidden
+    let overlay = document.getElementById("overlay");
+    if (overlay.style.display !== "block") {
+        overlay.style.display = "block";
+    }
+    // play overlay animation
+    overlay.classList.remove("animated");
+    overlay.style.animationName = "moveOverlayIn";
+    overlay.classList.add("animated");
+
 
     // get flight info from API
     let flightIdentifier = checkDefinied(flightInfo.flight_icao);
@@ -59,15 +70,15 @@ function showFlightInfo(flightInfo) {
     let pArriveAct = document.getElementById("arrive_time_act");
 
     // modify Elements
-    pFlightIcao.textContent = flightIdentifier;
+    //pFlightIcao.textContent = flightIdentifier;
     airlineImg.src = "http://pics.avs.io/200/80/" + airlineCode + ".png";
     if (airlineCode.includes("???")) {
         airlineImg.src = "./images/default_logo.png"
     }
     airlineImg.alt = airlineName;
     // airlineImg.src = "./images/default_logo.png"
-    pFlag.textContent = flags[flightFlag];
-    pSquawk.textContent = flightSquawk;
+    //pFlag.textContent = flags[flightFlag];
+    //pSquawk.textContent = flightSquawk;
     //hAirlineName.textContent = airlineName;
     fromLocation.textContent = departureIata;
     toLocation.textContent = arrivalIata;
