@@ -78,6 +78,16 @@ export class Map {
                 this.#markers.push(marker);
                 marker.addTo(this.#map);
                 marker.on("click", (e) => {
+                    // Check if the selected plane was clicked again to hide it.
+                    if (e.target === this.#selectedAirplane) {
+                        let overlay = document.getElementById("overlay");
+                        overlay.classList.remove("animated");
+                        overlay.style.animationName = "moveOverlayOut";
+                        overlay.classList.add("animated");
+                        this.#selectedAirplane.setIcon(this.#defaultAirplaneIcon);
+                        this.#selectedAirplane = undefined;
+                        return;
+                    }
                     //Callback triggered, a plane got clicked and we execute the call back passing the HEX value inside an object
                     if (this.#selectedAirplane) {
                         this.#selectedAirplane.setIcon(this.#defaultAirplaneIcon);
@@ -121,6 +131,10 @@ export class Map {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    get hasSelectedPlane() {
+        return this.#selectedAirplane !== undefined;
     }
 
     // It gets a flight {hex, lat, lng, dir} and with that queries the API for the full flight information

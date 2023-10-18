@@ -19,11 +19,22 @@ async function onMarkerClicked(params) {
 }
 
 function showFlightInfo(flightInfo) {
-    // 
+    // checks before showFlightInfo
     if (!flightInfo) {
         console.log("Flight Info Undefined");
         return;
     }
+
+    // display .overlay if hidden
+    let overlay = document.getElementById("overlay");
+    if (overlay.style.display !== "block") {
+        overlay.style.display = "block";
+    }
+    // play overlay animation
+    overlay.classList.remove("animated");
+    overlay.style.animationName = "moveOverlayIn";
+    overlay.classList.add("animated");
+
 
     // get flight info from API
     let flightIdentifier = checkDefinied(flightInfo.flight_icao);
@@ -35,8 +46,8 @@ function showFlightInfo(flightInfo) {
     let actualDepart = checkDefinied(flightInfo.dep_actual, "");
     let estimatedArrival = checkDefinied(flightInfo.arr_estimated, "");
     let actualArrival = checkDefinied(flightInfo.arr_actual, estimatedDepart !== "No data" ? "Flying!" : "");
-    let lat = checkDefinied(flightInfo.lat);
-    let lng = checkDefinied(flightInfo.lng);
+    let depCity = checkDefinied(flightInfo.dep_city, "");
+    let arrCity = checkDefinied(flightInfo.arr_city, "");
     let flightFlag = checkDefinied(flightInfo.flag);
     let flightSquawk = checkDefinied(flightInfo.squawk);
     let flightRegNum = checkDefinied(flightInfo.reg_number);
@@ -49,22 +60,30 @@ function showFlightInfo(flightInfo) {
     let pFlag = document.getElementById("p_flag");
     let pSquawk = document.getElementById("p_squawk")
     let airplaneImg = document.getElementById("img_airplane");
-    let hAirlineName = document.getElementById("airline_name");
     let fromLocation = document.getElementById("from_location");
     let toLocation = document.getElementById("to_location");
+    let fromCity = document.getElementById("from_city");
+    let toCity = document.getElementById("to_city");
     let pDepartEst = document.getElementById("depart_time_est");
     let pDepartAct = document.getElementById("depart_time_act");
     let pArriveEst = document.getElementById("arrive_time_est");
     let pArriveAct = document.getElementById("arrive_time_act");
 
     // modify Elements
-    pFlightIcao.textContent = flightIdentifier;
-    airlineImg.src = "https://airlabs.co/img/airline/m/" + airlineCode + ".png";
-    pFlag.textContent = flags[flightFlag];
-    pSquawk.textContent = flightSquawk;;
-    hAirlineName.textContent = airlineName;
+    //pFlightIcao.textContent = flightIdentifier;
+    airlineImg.src = "http://pics.avs.io/200/80/" + airlineCode + ".png";
+    if (airlineCode.includes("???")) {
+        airlineImg.src = "./images/default_logo.png"
+    }
+    airlineImg.alt = airlineName;
+    // airlineImg.src = "./images/default_logo.png"
+    //pFlag.textContent = flags[flightFlag];
+    //pSquawk.textContent = flightSquawk;
+    //hAirlineName.textContent = airlineName;
     fromLocation.textContent = departureIata;
     toLocation.textContent = arrivalIata;
+    fromCity.textContent = depCity;
+    toCity.textContent = arrCity;
 
 
     pDepartEst.textContent = estimatedDepart;
@@ -75,12 +94,16 @@ function showFlightInfo(flightInfo) {
     //TODO: GET THE AIRLINE"S INFORMATION FROM THE API!!!!
 
     // Airplane Image
-    fetch(`http://localhost:8080/api/airplane/picture/${flightInfo.reg_number}`)
+    console.log(flightRegNum);
+    fetch(`http://localhost:8080/api/airplane/picture/${flightRegNum}`)
         .then((response) => response.json())
         .then((picture) =>{
-            picture.picture ? airplaneImg.src = picture.picture : airplaneImg.src = '../images/default_plane.jpg';
+            airplaneImg.src = picture.picture;
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            airplaneImg.src = './images/default_plane.jpg';
+            return console.log(err);
+        });
 }
 
 function checkDefinied(data, altText="???") {

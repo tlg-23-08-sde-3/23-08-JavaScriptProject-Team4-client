@@ -34,22 +34,29 @@
   <body>
     <div id="map"></div>
 
-    <div class="overlay">
+    <div id="overlay">
       <div id="overlay-container">
         <div class="heading">
           <h3>Flight Track</h3>
         </div>
         <div class="images">
-          <div>
-            <img id="img_airline" src="" alt="" />
-            <h4 id="airline_name">Airline Name</h4>
-          </div>
+          <img id="img_airline" src="" alt="" />
           <img id="img_airplane" src="" alt="" />
         </div>
         <div class="location">
-          <p id="from_location">From</p>
-          <p>--></p>
-          <p id="to_location">To</p>
+          <div class="fromto">
+            <p id="from_location">From</p>
+            <p id="from_city"></p>
+          </div>
+          <img
+            src="./images/plane_traveling.png"
+            alt="-->"
+            style="height: fit-content"
+          />
+          <div class="fromto">
+            <p id="to_location">To</p>
+            <p id="to_city"></p>
+          </div>
         </div>
         <div class="airplane_time">
           <p><br /></p>

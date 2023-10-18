@@ -29,7 +29,8 @@
 } */
 
 
-.overlay {
+#overlay {
+    display: none;
     height: 90%;
     width: 350px;
     top: 5%;
@@ -42,6 +43,8 @@
     border-radius: 10px;
     font-family: 'Young Serif', serif;
     pointer-events: auto;
+    animation: moveOverlay 0.25s linear 0s;
+    animation-fill-mode: forwards;
   } 
 
 #overlay-container {
@@ -67,6 +70,11 @@
 .location {
     display: flex;
     justify-content: space-evenly;
+    height: 80px;
+}
+.location img {
+    padding-top: 10px;
+    max-height: 60px;
 }
 
 .airplane_time {
@@ -74,23 +82,54 @@
     display: grid;
     grid-template-columns: 30% 35% 35%;
     grid-template-rows: 20% auto auto;
+    border: 1px solid black;
 }
 
 .row_headers, .departure p:first-of-type, .arrival p:first-of-type {
     font-size: 0.9rem;
 }
 
+.fromto {
+    display: flex;
+    flex-direction: column;
+}
+
+#from_city, #to_city {
+    font-size: 0.7rem;
+    margin-top: -10px;
+}
+
 .departure, .arrival {
     width: 35%;
 }
-.images > div {
+.images {
     display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
-
 #img_airline {
-    width: 100px;;
+    max-width: 200px;
+    margin: auto;
 }
 
 #img_airplane{
     max-width: 350px;
+}
+
+@keyframes moveOverlayIn {
+    0% {
+        transform: translateX(370px);
+    }
+    100% {
+        transform: translateX(0px);
+    }
+}
+
+@keyframes moveOverlayOut {
+    0% {
+        transform: translateX(0px);
+    }
+    100% {
+        transform: translateX(370px);
+    }
 }
