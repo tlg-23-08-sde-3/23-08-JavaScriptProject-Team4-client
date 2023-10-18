@@ -7,7 +7,7 @@ const API_URL = "http://localhost:8080/api";
 const map = new Map(onMarkerClicked);
 const api = new API(API_URL);
 
-const refreshMapInSeconds = 600;
+const refreshMapInSeconds = 60;
 
 let flights = await api.getFlights();
 
@@ -16,6 +16,20 @@ map.updateMarkers(flights);
 async function onMarkerClicked(params) {
     const flightInfo = await api.getFlightInfo(params);
     showFlightInfo(flightInfo);
+}
+
+// search for flight via HEX
+async function searchFlight(params) {
+    let flightMarker = map.findFlightMarkerFromIcao(params);
+    if (flightMarker) {
+        const flightInfo = await api.getFlightInfo(flightMarker.options);
+        showFlightInfo(flightInfo);
+        map.updateSelectedPlane(flightMarker, flightMarker.options.hex);
+        map.moveMap(flightMarker._latlng.lat, flightMarker._latlng.lng )
+    }
+    else {
+        console.log("flight not found")
+    }
 }
 
 function showFlightInfo(flightInfo) {
@@ -94,7 +108,6 @@ function showFlightInfo(flightInfo) {
     //TODO: GET THE AIRLINE"S INFORMATION FROM THE API!!!!
 
     // Airplane Image
-    console.log(flightRegNum);
     fetch(`http://localhost:8080/api/airplane/picture/${flightRegNum}`)
         .then((response) => response.json())
         .then((picture) =>{
@@ -102,7 +115,6 @@ function showFlightInfo(flightInfo) {
         })
         .catch((err) => {
             airplaneImg.src = './images/default_plane.jpg';
-            return console.log(err);
         });
 }
 
@@ -112,6 +124,12 @@ function checkDefinied(data, altText="???") {
 
 // Interval to refresh map
 setInterval(async () => {
+    console.log("auto refreshing");
     flights = await api.getFlights();
     map.updateMarkers(flights);
 }, refreshMapInSeconds * 1000);
+
+const searchBtn = document.getElementById("search_button");
+searchBtn.addEventListener('click', ()=>{
+    searchFlight(document.getElementById("search_field").value);
+})

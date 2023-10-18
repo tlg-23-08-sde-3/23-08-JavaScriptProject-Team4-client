@@ -73,28 +73,15 @@ export class Map {
                     icon: this.#selectedAirplane?.hex === hex ? this.#selectedAirplaneIcon : this.#defaultAirplaneIcon,
                     rotationAngle: dir,
                     hex: hex,
+                    flight_icao: flight_icao,
                 });
                 marker.bindTooltip(flight_icao);
                 this.#markers.push(marker);
                 marker.addTo(this.#map);
                 marker.on("click", (e) => {
-                    // Check if the selected plane was clicked again to hide it.
-                    if (e.target === this.#selectedAirplane) {
-                        let overlay = document.getElementById("overlay");
-                        overlay.classList.remove("animated");
-                        overlay.style.animationName = "moveOverlayOut";
-                        overlay.classList.add("animated");
-                        this.#selectedAirplane.setIcon(this.#defaultAirplaneIcon);
-                        this.#selectedAirplane = undefined;
+                    if (this.updateSelectedPlane(e.target, hex)) {
                         return;
-                    }
-                    //Callback triggered, a plane got clicked and we execute the call back passing the HEX value inside an object
-                    if (this.#selectedAirplane) {
-                        this.#selectedAirplane.setIcon(this.#defaultAirplaneIcon);
-                    }
-                    this.#selectedAirplane = e.target;
-                    this.#selectedAirplane.setIcon(this.#selectedAirplaneIcon);
-                    this.#selectedAirplane.hex = hex;
+                    };
                     return this.#markerOnClick({ hex })
             }); //TODO DELETE THIS, ADD SOME LOGIC HERE
                 return true;
@@ -131,6 +118,44 @@ export class Map {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    findFlightMarkerFromIcao(icao) {
+        for (let marker of this.#markers) {
+            if (marker.options.flight_icao === icao || marker.options.hex === icao) {
+                return marker;
+            }
+        }
+        return undefined;
+    }
+
+    updateSelectedPlane(elem, hex) {
+        // Check if the selected plane was clicked again to hide it.
+        if (elem === this.#selectedAirplane) {
+            let overlay = document.getElementById("overlay");
+            overlay.classList.remove("animated");
+            overlay.style.animationName = "moveOverlayOut";
+            overlay.classList.add("animated");
+            this.#selectedAirplane.setIcon(this.#defaultAirplaneIcon);
+            this.#selectedAirplane = undefined;
+            return true;
+        }
+        //Callback triggered, a plane got clicked and we execute the call back passing the HEX value inside an object
+        if (this.#selectedAirplane) {
+            this.#selectedAirplane.setIcon(this.#defaultAirplaneIcon);
+        }
+        this.#selectedAirplane = elem;
+        this.#selectedAirplane.setIcon(this.#selectedAirplaneIcon);
+        this.#selectedAirplane.hex = hex;
+        return false;
+    }
+
+    moveMap(lat, lng, time=0) {
+        if (time === 0) {
+            this.#map.panTo(new L.LatLng(lat, lng));
+            return;
+        }
+       
     }
 
     get hasSelectedPlane() {
