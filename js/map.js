@@ -67,7 +67,7 @@ export class Map {
         // TODO
     }
 
-    addMarker({ lat, lng, dir, flight_icao, hex }) {
+    addMarker({ lat, lng, dir, flight_icao, flight_iata, hex }) {
         if (this.isInBound({ lat, lng })) {
             const coords = [lat, lng];
             // check if coords = the selected airplane to not overwrite selected airplane
@@ -76,8 +76,14 @@ export class Map {
                     rotationAngle: dir,
                     hex: hex,
                     flight_icao: flight_icao,
+                    flight_iata: flight_iata,
                 });
-                marker.bindTooltip(flight_icao);
+                if (flight_icao){
+                    marker.bindTooltip(flight_icao);
+                }
+                else {
+                    marker.bindTooltip(flight_iata);
+                }
                 this.#markers.push(marker);
                 marker.addTo(this.#map);
                 marker.on("click", (e) => {
@@ -85,7 +91,7 @@ export class Map {
                         return;
                     };
                     return this.#markerOnClick({ hex })
-            }); //TODO DELETE THIS, ADD SOME LOGIC HERE
+            });
                 return true;
             }
         
@@ -122,9 +128,9 @@ export class Map {
         }
     }
 
-    findFlightMarkerFromIcao(icao) {
+    findFlightMarkerFromParams(params) {
         for (let marker of this.#markers) {
-            if (marker.options.flight_icao === icao || marker.options.hex === icao) {
+            if (marker.options.flight_icao === params || marker.options.hex === params || marker.options.flight_iata === params) {
                 return marker;
             }
         }

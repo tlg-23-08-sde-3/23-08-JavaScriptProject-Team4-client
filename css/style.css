@@ -1,5 +1,6 @@
 body {
     overflow: hidden;
+    position: relative;
 }
 #windy {
     width: 100%;
@@ -69,7 +70,20 @@ body {
     text-align: center;
     font-size: 1.5em;
 }
-
+.searchArea {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 10;
+    opacity: 50%;
+    transition: opacity 0.3s;
+}
+.searchArea:hover {
+    opacity: 100%;
+}
+#search_field {
+    width: 100px;
+}
 .location {
     display: flex;
     justify-content: space-evenly;
