@@ -132,7 +132,13 @@ setInterval(async () => {
     map.updateMarkers(flights);
 }, refreshMapInSeconds * 1000);
 
+const searchField = document.getElementById("search_field");
 const searchBtn = document.getElementById("search_button");
+searchField.addEventListener("keyup", (e)=>{
+    if (e.key === "Enter") {
+        searchFlight(searchField.value);
+    }
+})
 searchBtn.addEventListener('click', ()=>{
-    searchFlight(document.getElementById("search_field").value);
+    searchFlight(searchField.value);
 })
