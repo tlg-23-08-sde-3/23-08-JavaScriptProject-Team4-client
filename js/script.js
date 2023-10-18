@@ -20,7 +20,7 @@ async function onMarkerClicked(params) {
 
 // search for flight via HEX
 async function searchFlight(params) {
-    let flightMarker = map.findFlightMarkerFromIcao(params);
+    let flightMarker = map.findFlightMarkerFromParams(params);
     if (flightMarker) {
         const flightInfo = await api.getFlightInfo(flightMarker.options);
         showFlightInfo(flightInfo);
@@ -87,16 +87,11 @@ function showFlightInfo(flightInfo) {
     let pArriveAct = document.getElementById("arrive_time_act");
 
     // modify Elements
-    //pFlightIcao.textContent = flightIdentifier;
     airlineImg.src = "http://pics.avs.io/200/80/" + airlineCode + ".png";
     if (airlineCode.includes("???")) {
         airlineImg.src = "./images/default_logo.png"
     }
     airlineImg.alt = airlineName;
-    // airlineImg.src = "./images/default_logo.png"
-    //pFlag.textContent = flags[flightFlag];
-    //pSquawk.textContent = flightSquawk;
-    //hAirlineName.textContent = airlineName;
     fromLocation.textContent = departureIata;
     toLocation.textContent = arrivalIata;
     fromCity.textContent = depCity;
@@ -107,8 +102,6 @@ function showFlightInfo(flightInfo) {
     pDepartAct.textContent = actualDepart;
     pArriveEst.textContent = estimatedArrival;
     pArriveAct.textContent = actualArrival;
-    
-    //TODO: GET THE AIRLINE"S INFORMATION FROM THE API!!!!
 
     // Airplane Image
     fetch(`http://localhost:8080/api/airplane/picture/${flightRegNum}`)
