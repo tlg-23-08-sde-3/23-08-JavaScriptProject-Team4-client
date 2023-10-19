@@ -68,8 +68,8 @@ export class Map {
         // TODO
     }
 
-    addMarker({ lat, lng, dir, flight_icao, flight_iata, hex }) {
-        if (this.isInBound({ lat, lng })) {
+    addMarker({ lat, lng, dir, flight_icao, flight_iata, hex }, force) {
+        if (this.isInBound({ lat, lng }) || force) {
             const coords = [lat, lng];
             // check if coords = the selected airplane to not overwrite selected airplane
             const marker = L.marker(coords, {
@@ -95,10 +95,10 @@ export class Map {
                 }
                 return this.#markerOnClick({ hex });
             });
-            return true;
+            return marker;
         }
 
-        return false;
+        return undefined;
     }
     isInBound(coords) {
         const inBound = this.#map.getBounds().contains(coords);
@@ -123,7 +123,7 @@ export class Map {
         let count = 0;
         try {
             this.#flightInfoList.every((flightInfo) => {
-                count += this.addMarker(flightInfo) ? 1 : 0;
+                count += this.addMarker(flightInfo, false) ? 1 : 0;
                 if (count >= MAX_AIRPLANES) {
                     return false;
                 }
@@ -136,16 +136,24 @@ export class Map {
     }
 
     findFlightMarkerFromParams(params) {
-        for (let marker of this.#markers) {
-            if (
-                marker.options.flight_icao === params ||
-                marker.options.hex === params ||
-                marker.options.flight_iata === params
-            ) {
-                return marker;
-            }
+        let marker = this.#markers.find((elem) => {
+            return (
+                elem.options.flight_icao === params ||
+                elem.options.hex === params ||
+                elem.options.flight_iata === params
+            );
+        });
+        if (!marker) {
+            let flight = this.#flightInfoList.find((elem) => {
+                return (
+                    elem.flight_icao === params ||
+                    elem.hex === params ||
+                    elem.flight_iata === params
+                );
+            });
+            marker = this.addMarker(flight, true);
         }
-        return undefined;
+        return marker;
     }
 
     updateSelectedPlane(elem, hex) {
