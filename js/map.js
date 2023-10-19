@@ -43,6 +43,7 @@ export class Map {
     #polylines;
     //This will store a callback function that will get triggered each time we click a marker (airplane), we pass the HEX to that function
     #markerOnClick;
+    #flightPath = [];
 
     constructor(markerOnClickCallBack) {
         //Initializing the map bounds
@@ -108,6 +109,9 @@ export class Map {
             // remove all non-selected planes
             this.#map.removeLayer(marker);
         });
+        // if (this.#selectedAirplane) {
+        //     this.#map.removeLayer(this.#selectedAirplane);
+        // }
         this.#markers = [];
     }
 
@@ -125,6 +129,7 @@ export class Map {
                 }
                 return true;
             });
+            this.drawLines();
         } catch (error) {
             console.log(error);
         }
@@ -155,11 +160,14 @@ export class Map {
             this.removeLines();
             return true;
         }
+        this.#markers.forEach((marker) =>
+            marker.setIcon(this.#defaultAirplaneIcon)
+        );
         //Callback triggered, a plane got clicked and we execute the call back passing the HEX value inside an object
         if (this.#selectedAirplane) {
-            this.#map.removeLayer(this.#selectedAirplane);
+            //this.#map.removeLayer(this.#selectedAirplane);
             this.#selectedAirplane.setIcon(this.#defaultAirplaneIcon);
-            this.#selectedAirplane.addTo(this.#map);
+            //this.#selectedAirplane.addTo(this.#map);
         }
         this.#selectedAirplane = elem;
         this.#selectedAirplane.setIcon(this.#selectedAirplaneIcon);
@@ -177,15 +185,16 @@ export class Map {
 
     drawLines(positions) {
         this.removeLines();
-        if (!positions) {
+        if (!positions && !this.#flightPath) {
             return;
         }
-
-        let posArr = [];
-        for (let pos of positions) {
-            posArr.push([pos.lat, pos.lng]);
+        if (positions) {
+            this.#flightPath = positions;
         }
-        this.#polylines = L.polyline(posArr, { color: "blue" }).addTo(
+        // for (let pos of positions) {
+        //     this.#flightPath.push([pos.lat, pos.lng]);
+        // }
+        this.#polylines = L.polyline(this.#flightPath, { color: "blue" }).addTo(
             this.#map
         );
     }
