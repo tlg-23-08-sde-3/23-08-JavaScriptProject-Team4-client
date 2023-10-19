@@ -2,13 +2,13 @@ import { Map } from "./map.js";
 import { API } from "./api.js";
 import { flags } from "./flags.js";
 
-const API_URL = "https://flighttrack-tlg.onrender.com/api";
-//const API_URL = "http://localhost:8080/api";
+//const API_URL = "https://flighttrack-tlg.onrender.com/api";
+const API_URL = "http://localhost:8080/api";
 
 const map = new Map(onMarkerClicked);
 const api = new API(API_URL);
 
-const refreshMapInSeconds = 10;
+const refreshMapInSeconds = 5;
 
 let flights = await api.getFlights();
 
@@ -26,10 +26,9 @@ async function searchFlight(params) {
         const flightInfo = await api.getFlightInfo(flightMarker.options);
         showFlightInfo(flightInfo);
         map.updateSelectedPlane(flightMarker, flightMarker.options.hex);
-        map.moveMap(flightMarker._latlng.lat, flightMarker._latlng.lng )
-    }
-    else {
-        console.log("flight not found")
+        map.moveMap(flightMarker._latlng.lat, flightMarker._latlng.lng);
+    } else {
+        console.log("flight not found");
     }
 }
 
@@ -51,8 +50,10 @@ function showFlightInfo(flightInfo) {
     overlay.classList.add("animated");
 
     // add lines for travel
-    map.drawLines(flightInfo.positionHistory);
-
+    var positionHistory = flightInfo.positionHistory.map((x) => x);
+    positionHistory.push([flightInfo.lat, flightInfo.lng]);
+    //map.drawLines(flightInfo.positionHistory, [flightInfo.lat, flightInfo.lng]);
+    map.drawLines(positionHistory);
 
     // get flight info from API
     let flightIdentifier = checkDefinied(flightInfo.flight_icao);
@@ -63,7 +64,10 @@ function showFlightInfo(flightInfo) {
     let estimatedDepart = checkDefinied(flightInfo.dep_estimated, "No data");
     let actualDepart = checkDefinied(flightInfo.dep_actual, "");
     let estimatedArrival = checkDefinied(flightInfo.arr_estimated, "");
-    let actualArrival = checkDefinied(flightInfo.arr_actual, estimatedDepart !== "No data" ? "Flying!" : "");
+    let actualArrival = checkDefinied(
+        flightInfo.arr_actual,
+        estimatedDepart !== "No data" ? "Flying!" : ""
+    );
     let depCity = checkDefinied(flightInfo.dep_city, "");
     let arrCity = checkDefinied(flightInfo.arr_city, "");
     let flightFlag = checkDefinied(flightInfo.flag);
@@ -76,7 +80,7 @@ function showFlightInfo(flightInfo) {
     let pFlightIcao = document.getElementById("p_flight_icao");
     let airlineImg = document.getElementById("img_airline");
     let pFlag = document.getElementById("p_flag");
-    let pSquawk = document.getElementById("p_squawk")
+    let pSquawk = document.getElementById("p_squawk");
     let airplaneImg = document.getElementById("img_airplane");
     let fromLocation = document.getElementById("from_location");
     let toLocation = document.getElementById("to_location");
@@ -90,14 +94,13 @@ function showFlightInfo(flightInfo) {
     // modify Elements
     airlineImg.src = "http://pics.avs.io/200/80/" + airlineCode + ".png";
     if (airlineCode.includes("???")) {
-        airlineImg.src = "./images/default_logo.png"
+        airlineImg.src = "./images/default_logo.png";
     }
     airlineImg.alt = airlineName;
     fromLocation.textContent = departureIata;
     toLocation.textContent = arrivalIata;
     fromCity.textContent = depCity;
     toCity.textContent = arrCity;
-
 
     pDepartEst.textContent = estimatedDepart;
     pDepartAct.textContent = actualDepart;
@@ -107,15 +110,15 @@ function showFlightInfo(flightInfo) {
     // Airplane Image
     fetch(`${API_URL}/airplane/picture/${flightRegNum}`)
         .then((response) => response.json())
-        .then((picture) =>{
+        .then((picture) => {
             airplaneImg.src = picture.picture;
         })
         .catch((err) => {
-            airplaneImg.src = './images/default_plane.jpg';
+            airplaneImg.src = "./images/default_plane.jpg";
         });
 }
 
-function checkDefinied(data, altText="???") {
+function checkDefinied(data, altText = "???") {
     return data === undefined || data === null ? altText : data;
 }
 
@@ -128,11 +131,11 @@ setInterval(async () => {
 
 const searchField = document.getElementById("search_field");
 const searchBtn = document.getElementById("search_button");
-searchField.addEventListener("keyup", (e)=>{
+searchField.addEventListener("keyup", (e) => {
     if (e.key === "Enter") {
         searchFlight(searchField.value);
     }
-})
-searchBtn.addEventListener('click', ()=>{
+});
+searchBtn.addEventListener("click", () => {
     searchFlight(searchField.value);
-})
+});
