@@ -68,10 +68,11 @@ export class Map {
         //Initializing the callback
         this.#markerOnClick = markerOnClickCallBack;
     }
+	
+		// Function to add a marker to the map, this is typically used in a loop to add all markers at once
+    addMarker({ lat, lng, dir, flight_icao, flight_iata, hex }, force) {
+        if (this.isInBound({ lat, lng }) || force) {
 
-    // Function to add a marker to the map, this is typically used in a loop to add all markers at once
-    addMarker({ lat, lng, dir, flight_icao, flight_iata, hex }) {
-        if (this.isInBound({ lat, lng })) {
             const coords = [lat, lng];
             // check if coords = the selected airplane to not overwrite selected airplane
             const marker = L.marker(coords, {
@@ -100,10 +101,10 @@ export class Map {
                 }
                 return this.#markerOnClick({ hex });
             });
-            return true;
+            return marker;
         }
 
-        return false;
+        return undefined;
     }
 
     // Check if the marker is in the bounds of the map
@@ -130,7 +131,7 @@ export class Map {
         let count = 0;
         try {
             this.#flightInfoList.every((flightInfo) => {
-                count += this.addMarker(flightInfo) ? 1 : 0;
+                count += this.addMarker(flightInfo, false) ? 1 : 0;
                 if (count >= MAX_AIRPLANES) {
                     return false;
                 }
@@ -144,16 +145,24 @@ export class Map {
 
     // Find a specific marker based on incoming params
     findFlightMarkerFromParams(params) {
-        for (let marker of this.#markers) {
-            if (
-                marker.options.flight_icao === params ||
-                marker.options.hex === params ||
-                marker.options.flight_iata === params
-            ) {
-                return marker;
-            }
+        let marker = this.#markers.find((elem) => {
+            return (
+                elem.options.flight_icao === params ||
+                elem.options.hex === params ||
+                elem.options.flight_iata === params
+            );
+        });
+        if (!marker) {
+            let flight = this.#flightInfoList.find((elem) => {
+                return (
+                    elem.flight_icao === params ||
+                    elem.hex === params ||
+                    elem.flight_iata === params
+                );
+            });
+            marker = this.addMarker(flight, true);
         }
-        return undefined;
+        return marker;
     }
 
     // Update which plane is currently selected
