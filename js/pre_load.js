@@ -1,3 +1,5 @@
+// Pre-load function that handles loading the map before anything else
+
 (function () {
     // save these original methods before they are overwritten
     var proto_initIcon = L.Marker.prototype._initIcon;

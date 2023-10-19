@@ -50,7 +50,8 @@ export class Map {
         this.#map = L.map("map", {
             maxBounds: L.latLngBounds([-90, -180], [90, 180]),
         }).setView([STARTUP_LAT, STARTUP_LNG], STARTUP_ZOOM);
-        //We then load the tile Layer from https://www.openstreetmap.org and set some attributes
+
+        // Load the tile Layer from https://www.openstreetmap.org and set some attributes
         L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 14,
             minZoom: 3,
@@ -58,16 +59,17 @@ export class Map {
             attribution:
                 '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         }).addTo(this.#map);
+
         //When the user moves the map around or zoom we re-load the airplanes
         this.#map.on("moveend", () => {
             this.updateMarkers();
         });
+
         //Initializing the callback
         this.#markerOnClick = markerOnClickCallBack;
-        //Clear the selected airplane if clicking away from the airplane
-        // TODO
     }
 
+    // Function to add a marker to the map, this is typically used in a loop to add all markers at once
     addMarker({ lat, lng, dir, flight_icao, flight_iata, hex }) {
         if (this.isInBound({ lat, lng })) {
             const coords = [lat, lng];
@@ -82,13 +84,16 @@ export class Map {
                 flight_icao: flight_icao,
                 flight_iata: flight_iata,
             });
+            // Choose between ICAO and IATA depending on API results
             if (flight_icao) {
                 marker.bindTooltip(flight_icao);
             } else {
                 marker.bindTooltip(flight_iata);
             }
+            // Push marker to the markers array and add to the map
             this.#markers.push(marker);
             marker.addTo(this.#map);
+            // Add a click function to the marker
             marker.on("click", (e) => {
                 if (this.updateSelectedPlane(e.target, hex)) {
                     return;
@@ -100,21 +105,23 @@ export class Map {
 
         return false;
     }
+
+    // Check if the marker is in the bounds of the map
     isInBound(coords) {
         const inBound = this.#map.getBounds().contains(coords);
         return inBound;
     }
+
+    // Remove each marker for a full reset of the marker layers
     restartMarkers() {
         this.#markers.forEach((marker) => {
             // remove all non-selected planes
             this.#map.removeLayer(marker);
         });
-        // if (this.#selectedAirplane) {
-        //     this.#map.removeLayer(this.#selectedAirplane);
-        // }
         this.#markers = [];
     }
 
+    // Update each marker with flight info.
     async updateMarkers(flightsArray) {
         if (flightsArray) {
             this.#flightInfoList = flightsArray;
@@ -135,6 +142,7 @@ export class Map {
         }
     }
 
+    // Find a specific marker based on incoming params
     findFlightMarkerFromParams(params) {
         for (let marker of this.#markers) {
             if (
@@ -148,6 +156,7 @@ export class Map {
         return undefined;
     }
 
+    // Update which plane is currently selected
     updateSelectedPlane(elem, hex) {
         // Check if the selected plane was clicked again to hide it.
         if (elem === this.#selectedAirplane) {
@@ -160,15 +169,14 @@ export class Map {
             this.removeLines();
             return true;
         }
+        // Set all markers to default to clear old selection's icon
         this.#markers.forEach((marker) =>
             marker.setIcon(this.#defaultAirplaneIcon)
         );
-        //Callback triggered, a plane got clicked and we execute the call back passing the HEX value inside an object
         if (this.#selectedAirplane) {
-            //this.#map.removeLayer(this.#selectedAirplane);
             this.#selectedAirplane.setIcon(this.#defaultAirplaneIcon);
-            //this.#selectedAirplane.addTo(this.#map);
         }
+        // Set object's selected plane to the clicked element, set an icon and give it an identifer
         this.#selectedAirplane = elem;
         this.#selectedAirplane.setIcon(this.#selectedAirplaneIcon);
         this.#selectedAirplane.hex = hex;
@@ -176,6 +184,7 @@ export class Map {
         return false;
     }
 
+    // Pan map to a specific latitude and longitude
     moveMap(lat, lng, time = 0) {
         if (time === 0) {
             this.#map.panTo(new L.LatLng(lat, lng));
@@ -183,6 +192,7 @@ export class Map {
         }
     }
 
+    // Draw lines behind the plane symbolizing the plane's route
     drawLines(positions) {
         this.removeLines();
         if (!positions && !this.#flightPath) {
@@ -191,25 +201,21 @@ export class Map {
         if (positions) {
             this.#flightPath = positions;
         }
-        // for (let pos of positions) {
-        //     this.#flightPath.push([pos.lat, pos.lng]);
-        // }
         this.#polylines = L.polyline(this.#flightPath, { color: "blue" }).addTo(
             this.#map
         );
     }
 
+    // getter for checking if there is a selected plane in the class
     get hasSelectedPlane() {
         return this.#selectedAirplane !== undefined;
     }
 
+    // Remove the drawn lines so there aren't lines everywhere
     removeLines() {
         if (this.#polylines) {
             this.#map.removeLayer(this.#polylines);
             this.#polylines = undefined;
         }
     }
-
-    // It gets a flight {hex, lat, lng, dir} and with that queries the API for the full flight information
-    // With the flight info then prints that in the screen
 }

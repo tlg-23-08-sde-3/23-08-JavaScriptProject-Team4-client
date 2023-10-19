@@ -1,7 +1,7 @@
 import { Map } from "./map.js";
 import { API } from "./api.js";
-import { flags } from "./flags.js";
 
+// API URLs, change depending on local testing or server testing
 const API_URL = "https://flighttrack-tlg.onrender.com/api";
 //const API_URL = "http://localhost:8080/api";
 
@@ -14,12 +14,13 @@ let flights = await api.getFlights();
 
 map.updateMarkers(flights);
 
+// Handle when a marker is clicked
 async function onMarkerClicked(params) {
     const flightInfo = await api.getFlightInfo(params);
     showFlightInfo(flightInfo);
 }
 
-// search for flight via HEX
+// search for flight via HEX given params: HEX, ICAO, IATA
 async function searchFlight(params) {
     let flightMarker = map.findFlightMarkerFromParams(params);
     if (flightMarker) {
@@ -44,6 +45,7 @@ function showFlightInfo(flightInfo) {
     if (overlay.style.display !== "block") {
         overlay.style.display = "block";
     }
+
     // play overlay animation
     overlay.classList.remove("animated");
     overlay.style.animationName = "moveOverlayIn";
@@ -52,11 +54,9 @@ function showFlightInfo(flightInfo) {
     // add lines for travel
     var positionHistory = flightInfo.positionHistory.map((x) => x);
     positionHistory.push([flightInfo.lat, flightInfo.lng]);
-    //map.drawLines(flightInfo.positionHistory, [flightInfo.lat, flightInfo.lng]);
     map.drawLines(positionHistory);
 
     // get flight info from API
-    let flightIdentifier = checkDefinied(flightInfo.flight_icao);
     let airlineCode = checkDefinied(flightInfo.airline_iata);
     let airlineName = checkDefinied(flightInfo.airline_name);
     let departureIata = checkDefinied(flightInfo.dep_iata);
@@ -70,17 +70,12 @@ function showFlightInfo(flightInfo) {
     );
     let depCity = checkDefinied(flightInfo.dep_city, "");
     let arrCity = checkDefinied(flightInfo.arr_city, "");
-    let flightFlag = checkDefinied(flightInfo.flag);
-    let flightSquawk = checkDefinied(flightInfo.squawk);
     let flightRegNum = checkDefinied(flightInfo.reg_number);
 
     console.log(actualArrival);
 
     // get Elements
-    let pFlightIcao = document.getElementById("p_flight_icao");
     let airlineImg = document.getElementById("img_airline");
-    let pFlag = document.getElementById("p_flag");
-    let pSquawk = document.getElementById("p_squawk");
     let airplaneImg = document.getElementById("img_airplane");
     let fromLocation = document.getElementById("from_location");
     let toLocation = document.getElementById("to_location");
@@ -118,6 +113,7 @@ function showFlightInfo(flightInfo) {
         });
 }
 
+// Check if defined/undefined or set to alt text
 function checkDefinied(data, altText = "???") {
     return data === undefined || data === null ? altText : data;
 }
@@ -129,6 +125,7 @@ setInterval(async () => {
     map.updateMarkers(flights);
 }, refreshMapInSeconds * 1000);
 
+// Event listeners for search function
 const searchField = document.getElementById("search_field");
 const searchBtn = document.getElementById("search_button");
 searchField.addEventListener("keyup", (e) => {
