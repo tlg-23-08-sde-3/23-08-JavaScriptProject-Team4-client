@@ -2,8 +2,8 @@ import { Map } from "./map.js";
 import { API } from "./api.js";
 import { flags } from "./flags.js";
 
-//const API_URL = "https://flighttrack-tlg.onrender.com/api";
-const API_URL = "http://localhost:8080/api";
+const API_URL = "https://flighttrack-tlg.onrender.com/api";
+//const API_URL = "http://localhost:8080/api";
 
 const map = new Map(onMarkerClicked);
 const api = new API(API_URL);
