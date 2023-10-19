@@ -38,9 +38,9 @@ export class Map {
         popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
     });
     // store selected airplane to handle if one should spawn over it
-    #selectedAirplane
+    #selectedAirplane;
     // store polylines
-    #polylines
+    #polylines;
     //This will store a callback function that will get triggered each time we click a marker (airplane), we pass the HEX to that function
     #markerOnClick;
 
@@ -71,30 +71,32 @@ export class Map {
         if (this.isInBound({ lat, lng })) {
             const coords = [lat, lng];
             // check if coords = the selected airplane to not overwrite selected airplane
-                const marker = L.marker(coords, {
-                    icon: this.#selectedAirplane?.hex === hex ? this.#selectedAirplaneIcon : this.#defaultAirplaneIcon,
-                    rotationAngle: dir,
-                    hex: hex,
-                    flight_icao: flight_icao,
-                    flight_iata: flight_iata,
-                });
-                if (flight_icao){
-                    marker.bindTooltip(flight_icao);
-                }
-                else {
-                    marker.bindTooltip(flight_iata);
-                }
-                this.#markers.push(marker);
-                marker.addTo(this.#map);
-                marker.on("click", (e) => {
-                    if (this.updateSelectedPlane(e.target, hex)) {
-                        return;
-                    };
-                    return this.#markerOnClick({ hex })
+            const marker = L.marker(coords, {
+                icon:
+                    this.#selectedAirplane?.hex === hex
+                        ? this.#selectedAirplaneIcon
+                        : this.#defaultAirplaneIcon,
+                rotationAngle: dir,
+                hex: hex,
+                flight_icao: flight_icao,
+                flight_iata: flight_iata,
             });
-                return true;
+            if (flight_icao) {
+                marker.bindTooltip(flight_icao);
+            } else {
+                marker.bindTooltip(flight_iata);
             }
-        
+            this.#markers.push(marker);
+            marker.addTo(this.#map);
+            marker.on("click", (e) => {
+                if (this.updateSelectedPlane(e.target, hex)) {
+                    return;
+                }
+                return this.#markerOnClick({ hex });
+            });
+            return true;
+        }
+
         return false;
     }
     isInBound(coords) {
@@ -130,7 +132,11 @@ export class Map {
 
     findFlightMarkerFromParams(params) {
         for (let marker of this.#markers) {
-            if (marker.options.flight_icao === params || marker.options.hex === params || marker.options.flight_iata === params) {
+            if (
+                marker.options.flight_icao === params ||
+                marker.options.hex === params ||
+                marker.options.flight_iata === params
+            ) {
                 return marker;
             }
         }
@@ -151,7 +157,9 @@ export class Map {
         }
         //Callback triggered, a plane got clicked and we execute the call back passing the HEX value inside an object
         if (this.#selectedAirplane) {
+            this.#map.removeLayer(this.#selectedAirplane);
             this.#selectedAirplane.setIcon(this.#defaultAirplaneIcon);
+            this.#selectedAirplane.addTo(this.#map);
         }
         this.#selectedAirplane = elem;
         this.#selectedAirplane.setIcon(this.#selectedAirplaneIcon);
@@ -160,12 +168,11 @@ export class Map {
         return false;
     }
 
-    moveMap(lat, lng, time=0) {
+    moveMap(lat, lng, time = 0) {
         if (time === 0) {
             this.#map.panTo(new L.LatLng(lat, lng));
             return;
         }
-       
     }
 
     drawLines(positions) {
@@ -173,12 +180,14 @@ export class Map {
         if (!positions) {
             return;
         }
-        
+
         let posArr = [];
         for (let pos of positions) {
-            posArr.push([pos.lat, pos.lng])
+            posArr.push([pos.lat, pos.lng]);
         }
-        this.#polylines = L.polyline(posArr, {color: "blue"}).addTo(this.#map);
+        this.#polylines = L.polyline(posArr, { color: "blue" }).addTo(
+            this.#map
+        );
     }
 
     get hasSelectedPlane() {
