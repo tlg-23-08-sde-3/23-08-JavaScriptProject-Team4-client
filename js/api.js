@@ -17,7 +17,7 @@ export class API {
     }
 
     async getFlightInfo(flight) {
-        return fetch(`http://localhost:8080/api/flight/?hex=${flight.hex}`)
+        return fetch(`${this.#API_URL}/flight/?hex=${flight.hex}`)
             .then((res) => res.json())
             .then((flight) => {
                 return flight;

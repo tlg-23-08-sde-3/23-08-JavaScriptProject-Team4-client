@@ -2,12 +2,13 @@ import { Map } from "./map.js";
 import { API } from "./api.js";
 import { flags } from "./flags.js";
 
-const API_URL = "http://localhost:8080/api";
+const API_URL = "https://flighttrack-tlg.onrender.com/api";
+//const API_URL = "http://localhost:8080/api";
 
 const map = new Map(onMarkerClicked);
 const api = new API(API_URL);
 
-const refreshMapInSeconds = 60;
+const refreshMapInSeconds = 10;
 
 let flights = await api.getFlights();
 
@@ -104,7 +105,7 @@ function showFlightInfo(flightInfo) {
     pArriveAct.textContent = actualArrival;
 
     // Airplane Image
-    fetch(`http://localhost:8080/api/airplane/picture/${flightRegNum}`)
+    fetch(`${API_URL}/airplane/picture/${flightRegNum}`)
         .then((response) => response.json())
         .then((picture) =>{
             airplaneImg.src = picture.picture;
