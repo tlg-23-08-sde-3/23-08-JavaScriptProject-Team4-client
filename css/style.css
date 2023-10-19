@@ -82,7 +82,14 @@ body {
     opacity: 100%;
 }
 #search_field {
-    width: 100px;
+    width: 125px;
+}
+#search_button {
+    width: 75px;
+}
+#search_field, #search_button {
+    height: 35px;
+    font-size: 1rem;
 }
 .location {
     display: flex;
